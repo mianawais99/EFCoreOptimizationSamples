@@ -26,9 +26,24 @@ namespace Repo.Data
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
-                    await dataSeeder.SeedDefaultIfNeeded();
-                    _logger.LogInformation("Data seeding completed.");
+                    var dbContext = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+
+                    if (dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.SqlServer")
+                    {
+                        // Seed data for SQL Server
+                        var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+                        await dataSeeder.SeedDefaultIfNeeded();
+                        _logger.LogInformation("Data seeding completed in Database");
+                    }
+                    else if (dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
+                    {
+                        // Seed data for InMemory
+                        var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+                        await dataSeeder.SeedDefaultIfNeeded();
+                        _logger.LogInformation("Data seeding completed in Memory");
+                    }
+
+                    //_logger.LogInformation("Data seeding completed.");
                 }
             }
             catch (Exception ex)
@@ -36,5 +51,6 @@ namespace Repo.Data
                 _logger.LogError(ex, "An error occurred while seeding the database.");
             }
         }
+
     }
 }

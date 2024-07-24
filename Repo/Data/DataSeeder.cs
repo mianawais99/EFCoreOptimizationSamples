@@ -8,21 +8,12 @@ using System.Threading.Tasks;
 
 namespace Repo.Data
 {
-    public class DataSeeder
+    public class DataSeeder(MyDbContext context, ILogger<DataSeeder> logger)
     {
-        private readonly MyDbContext _context;
-        private readonly ILogger<DataSeeder> _logger;
-
-        public DataSeeder(MyDbContext context, ILogger<DataSeeder> logger)
-        {
-            _context = context;
-            _logger = logger;
-        }
-
         public async Task SeedDefaultIfNeeded()
         {
             // Check if the data already exists
-            if (!_context.Customers.Any() && !_context.Products.Any() && !_context.Orders.Any())
+            if (!context.Customers.Any() && !context.Products.Any() && !context.Orders.Any())
             {
                 // Sample data arrays
                 var customerNames = new[] { "John Doe", "Jane Smith", "Robert Johnson", "Michael Brown", "William Davis" };
@@ -47,9 +38,9 @@ namespace Repo.Data
                 }).ToList();
 
                 // Add customers and products to the context
-                await _context.Customers.AddRangeAsync(customers);
-                await _context.Products.AddRangeAsync(products);
-                await _context.SaveChangesAsync();
+                await context.Customers.AddRangeAsync(customers);
+                await context.Products.AddRangeAsync(products);
+                await context.SaveChangesAsync();
 
                 // Create orders
                 var orders = Enumerable.Range(1, 100000).Select(i => new Order
@@ -60,14 +51,14 @@ namespace Repo.Data
                 }).ToList();
 
                 // Add orders to the context
-                await _context.Orders.AddRangeAsync(orders);
-                await _context.SaveChangesAsync();
+                await context.Orders.AddRangeAsync(orders);
+                await context.SaveChangesAsync();
 
-                _logger.LogInformation("Seeded the database with initial data.");
+                logger.LogInformation("Seeded the database with initial data.");
             }
             else
             {
-                _logger.LogInformation("Database already contains data.");
+                logger.LogInformation("Database already contains data.");
             }
         }
     }

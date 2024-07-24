@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Repo.Data;
 using Repo.Repositories;
@@ -8,10 +9,21 @@ using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var databaseType = builder.Configuration["DatabaseType"];
 
-builder.Services.AddDbContext<MyDbContext>
+
+if (databaseType == "SqlServer")
+{
+    builder.Services.AddDbContext<MyDbContext>
+        (item => item.UseSqlServer(builder.Configuration.GetConnectionString("Con"),
+         x => x.MigrationsAssembly("Repo")));
+}
+else if (databaseType == "InMemory")
+{
+    builder.Services.AddDbContext<MyDbContext>
     (o => o.UseInMemoryDatabase("EFCoreOptimizationSamplesDB"));
+}
+
 
 builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddHostedService<SeedDataBackgroundService>();
@@ -23,7 +35,6 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -41,5 +52,14 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+    if (dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.SqlServer")
+    {
+        dbContext.Database.Migrate();
+    }
+}
 
 app.Run();

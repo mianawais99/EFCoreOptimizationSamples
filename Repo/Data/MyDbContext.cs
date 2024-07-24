@@ -28,6 +28,11 @@ namespace Repo.Data
                 .HasOne(o => o.Product)
                 .WithMany(p => p.Orders)
                 .HasForeignKey(o => o.ProductId);
+
+            // Specify the precision and scale for the Price property
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Price)
+                .HasColumnType("decimal(18,2)");
         }
     }
 }
