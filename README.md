@@ -11,6 +11,16 @@ This repository contains an ASP.NET Core Web API project demonstrating EF Core o
   <li><strong>WebAPI</strong>: Contains the API controllers and startup configuration.</li>
 </ul> 
 
+## Features
+
+- **Initial Data Seeding**: The application seeds the database with the following records:
+  - **Customer**: 10,000 records
+  - **Product**: 5,000 records
+  - **Order**: 100,000 records
+- **Database Compatibility**: The application can work with both InMemory and SQL Server databases.
+- **Logging**: Log the time taken for batch and non-batch operations.
+- **Benchmarking**: Measure and compare the performance of different optimization techniques.
+
 ## Project Structure
 
 ```plaintext
@@ -52,5 +62,47 @@ EFCoreOptimizationSamples
 
 ```
 
-# sff
+## Setting Up the Project Locally
 
+### Prerequisites
+
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) or [Visual Studio Code](https://code.visualstudio.com/)
+
+### Installation
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/mianawais99/EFCoreOptimizationSamples.git
+    cd EFCoreOptimizationSamples
+    ```
+
+2. Restore the dependencies:
+
+    ```bash
+    dotnet restore
+    ```
+
+3. Build the project:
+
+    ```bash
+    dotnet build
+    ```
+
+### Configuration
+
+1. **Update Connection String**:
+   - Open `appsettings.json` in the `WebAPI` project.
+   - Update the connection string to point to your SQL Server instance.
+
+2. **Run Migrations**:
+   ```bash
+   dotnet ef migrations add InitialCreate --project Repo --startup-project WebAPI
+   dotnet ef database update --project Repo --startup-project WebAPI 
+   ```
+
+### Run the Application
+   ```bash
+   dotnet run --project WebAPI 
+   ```
